@@ -1,0 +1,902 @@
+﻿<Window x:Class="ClinicManagement.SubWindow.PatientDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClinicManagement.SubWindow"
+        
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+  
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+        WindowStyle="None"
+        xmlns:conver="clr-namespace:ClinicManagement.Converter"
+        ResizeMode="NoResize"
+        Name="patientdetailsWindow"
+        Title="Thông tin bệnh nhân"
+        Style="{StaticResource MaterialDesignWindow}"
+        xmlns:uc="clr-namespace:ClinicManagement.UserControlToUse"
+        WindowStartupLocation="CenterScreen"
+        Width="1500" Height="900">
+    
+    <Window.Resources>
+        <conver:AppointmentStatusToVisibilityConverter x:Key="AppointmentStatusToCancelVisibilityConverter"/>
+        <conver:BooleanToPharmacyConverter x:Key="BooleanToPharmacyConverter"/>
+        <conver:StringTrimmingConverter x:Key="StringTrimmingConverter"/>
+        <conver:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Padding" Value="4,0" />
+        </Style>
+    </Window.Resources>
+ 
+
+        <!-- Add this style definition -->
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedWindowCommand}" CommandParameter="{Binding ElementName=patientdetailsWindow}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Control Bar -->
+        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+            <uc:ControlBarUC Tag="{Binding Title, ElementName=mainWindow}"></uc:ControlBarUC>
+        </Grid>
+        <Grid Grid.Row="1">
+            <materialDesign:Card  Padding="16"  Grid.Row="1" Margin="0,20,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="People" Width="32" Height="32" VerticalAlignment="Center" />
+                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" FontSize="22" FontWeight="Medium">
+                        Thông tin bệnh nhân
+                    </TextBlock>
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+        <!-- Main Content -->
+        <materialDesign:Card Grid.Row="2" Margin="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Patient Personal Information -->
+                <Border Grid.Row="0" Background="White" CornerRadius="8" Margin="0,0,0,16" Padding="16">
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Patient Details -->
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Patient ID - Read Only -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Mã bệnh nhân:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,16"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PatientId}" 
+                                       FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,32,16"/>
+
+                            <!-- Full Name -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Họ tên bệnh nhân:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" 
+                                     Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" 
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     materialDesign:HintAssist.Hint="Họ và tên"
+                                     VerticalAlignment="Center" Margin="0,0,32,8"/>
+
+                            <!-- Birth Date -->
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Ngày sinh:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <DatePicker Grid.Row="1" Grid.Column="3" 
+                                        SelectedDate="{Binding DateOfBirth, UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"
+                                        Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                                        materialDesign:HintAssist.Hint="Chọn ngày sinh" 
+                                        VerticalAlignment="Center" Margin="0,0,0,8"/>
+
+                            <!-- Gender -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Giới tính:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" 
+                                      ItemsSource="{Binding GenderOptions}"
+                                      SelectedValue="{Binding Gender, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                      materialDesign:HintAssist.Hint="Chọn giới tính"
+                                      VerticalAlignment="Center" Margin="0,0,32,8"/>
+
+                            <!-- Phone -->
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="Số điện thoại:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <TextBox Grid.Row="2" Grid.Column="3" 
+                                     Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" 
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     materialDesign:HintAssist.Hint="Nhập số điện thoại"
+                                     VerticalAlignment="Center" Margin="0,0,0,8"/>
+
+                            <!-- Insurance Code -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Mã bảo hiểm:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" 
+                                     Text="{Binding InsuranceCode, UpdateSourceTrigger=PropertyChanged,  ValidatesOnDataErrors=True}" 
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     materialDesign:HintAssist.Hint="Nhập mã BHYT"
+                                     VerticalAlignment="Center" Margin="0,0,32,8"/>
+
+                            <!-- Patient Type -->
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="Loại bệnh nhân:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <ComboBox Grid.Row="3" Grid.Column="3" 
+                                      ItemsSource="{Binding PatientTypes}"
+                                      SelectedItem="{Binding SelectedPatientType, UpdateSourceTrigger=PropertyChanged}"
+                                      DisplayMemberPath="TypeName"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                      materialDesign:HintAssist.Hint="Chọn loại bệnh nhân"
+                                      VerticalAlignment="Center" Margin="0,0,0,8"/>
+                            <!-- Insurance Code -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Email:" 
+                                  FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,8"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" 
+                                Text="{Binding Email, UpdateSourceTrigger=PropertyChanged,  ValidatesOnDataErrors=True}" 
+                                Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                materialDesign:HintAssist.Hint="Nhập Email"
+                                VerticalAlignment="Center" Margin="0,0,32,8"/>
+                            <!-- Address -->
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Địa chỉ:" 
+                                       FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" 
+                                     Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" 
+                                     TextWrapping="Wrap" 
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     materialDesign:HintAssist.Hint="Nhập địa chỉ đầy đủ"
+                                     AcceptsReturn="True"
+                                     Height="60"
+                                     VerticalScrollBarVisibility="Auto"
+                                     VerticalAlignment="Center" Margin="0,0,0,0"/>
+                        </Grid>
+
+                  
+                        <!-- Action Buttons -->
+                        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                            <Button Command="{Binding UpdatePatientCommand}" 
+                                    Style="{StaticResource MaterialDesignRaisedButton}"
+                                    Width="150" Height="36" Margin="16,0,16,16"
+                                    Visibility="{Binding CanEditPatient, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ContentSave" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Lưu thông tin"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding DeletePatientCommand}" 
+                                    Style="{StaticResource MaterialDesignRaisedSecondaryButton}"
+                                    Width="150" Height="36" Margin="16,0,16,16"
+                                    Visibility="{Binding CanDeletePatient, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Delete" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Xóa bệnh nhân"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+
+                <!-- Tab Control for Medical Records, Invoices, Appointments -->
+                <TabControl Grid.Row="1" Style="{StaticResource MaterialDesignFilledTabControl}">
+                    <!-- Medical Records Tab -->
+                    <TabItem Header="Hồ sơ bệnh án">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Filter & Search -->
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                          
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Date Range -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Từ ngày:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <DatePicker SelectedDate="{Binding StartDate}" Width="220"
+                                                Style="{StaticResource MaterialDesignOutlinedDatePicker}" Margin="0,0,16,0"/>
+                                    <TextBlock Text="đến:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <DatePicker SelectedDate="{Binding EndDate}" Width="220"
+                                                Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+                                </StackPanel>
+
+                                <!-- Search Box -->
+                                <TextBox Grid.Column="1" Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                         materialDesign:HintAssist.Hint="Tìm kiếm theo chẩn đoán"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                         Width="250"  Margin="16,0,0,0"
+                                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                                <!-- Filter Button -->
+                                <Button Grid.Column="1" Command="{Binding FilterRecordsCommand}" 
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Width="100" Height="36" HorizontalAlignment="Left" Margin="285,8,0,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="FilterOutline" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Lọc"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+
+                            <!-- Medical Records List -->
+                            <ScrollViewer Grid.Row="1"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto">
+                                <DataGrid ItemsSource="{Binding MedicalRecords}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              CanUserReorderColumns="True"
+              CanUserResizeColumns="True"
+              CanUserSortColumns="True"
+              GridLinesVisibility="All"
+              RowHeaderWidth="0"
+              AlternatingRowBackground="#F5F5F5"
+              BorderThickness="1"
+             BorderBrush="{DynamicResource MaterialDesignDivider}"
+             VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+             HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                          Background="White">
+
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Height" Value="48"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F8FF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                    <Setter Property="Foreground" Value="#1565C0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                            <Setter Property="Background" Value="#E3F2FD" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                            <Setter Property="Padding" Value="8" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        </Style>
+                                        <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                            <Setter Property="Padding" Value="4,0"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="Mã hồ sơ" Width="140">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding RecordId}"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Ngày khám" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding RecordDate, StringFormat='dd/MM/yyyy'}"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Bác sĩ" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Doctor.FullName}"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Chẩn đoán" Width="300">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Diagnosis}"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Đơn thuốc" Width="140">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Xem chi tiết"
+                                HorizontalAlignment="Center"
+                                Command="{Binding DataContext.ViewPrescriptionCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                CommandParameter="{Binding}"
+                                Style="{StaticResource MaterialDesignFlatButton}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Kết quả xét nghiệm" Width="180">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Xem chi tiết"
+                                HorizontalAlignment="Center"
+                                Command="{Binding DataContext.ViewTestResultsCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                CommandParameter="{Binding}"
+                                Style="{StaticResource MaterialDesignFlatButton}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.OpenRecordCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                CommandParameter="{Binding}"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource MaterialDesignOutlinedButton}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="FileDocumentOutline" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="Mở"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+
+                                </DataGrid>
+                            </ScrollViewer>
+
+
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Invoices Tab -->
+                    <TabItem Header="Hóa đơn">
+                        <Grid Margin="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="335*"/>
+                                <ColumnDefinition Width="1114*"/>
+                                <ColumnDefinition Width="4*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Filter & Search -->
+                            <Grid Grid.Row="0" Margin="0,0,0,8" Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Date Range -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Từ ngày:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <DatePicker SelectedDate="{Binding InvoiceStartDate}" Width="220"
+                                                Style="{StaticResource MaterialDesignOutlinedDatePicker}" Margin="0,0,16,0"/>
+                                    <TextBlock Text="đến:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <DatePicker SelectedDate="{Binding InvoiceEndDate}" Width="220"
+                                                Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+                                </StackPanel>
+
+                                <!-- Status Filter -->
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding InvoiceStatusList}"
+                                         SelectedItem="{Binding SelectedInvoiceStatus}"
+                                         DisplayMemberPath="DisplayName"
+                                         Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                         Width="280" Height="48" Margin="16,0,0,0"
+                                         HorizontalAlignment="Left" VerticalAlignment="Center"
+                                         materialDesign:HintAssist.Hint="Trạng thái thanh toán"/>
+
+                                <!-- Filter Button -->
+                                <Button Grid.Column="1" Command="{Binding FilterInvoicesCommand}" 
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Width="100" Height="36" HorizontalAlignment="Left" Margin="315,8,0,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="FilterOutline" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Lọc"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+
+                            <!-- Invoices List -->
+                            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="3"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto">
+                                <DataGrid ItemsSource="{Binding Invoices}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              CanUserReorderColumns="True"
+              CanUserResizeColumns="True"
+              CanUserSortColumns="True"
+              GridLinesVisibility="All"
+              RowHeaderWidth="0"
+              AlternatingRowBackground="#F5F5F5"
+               BorderThickness="1"
+               BorderBrush="{DynamicResource MaterialDesignDivider}"
+               VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+               HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                Background="White">
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Height" Value="48"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F0F8FF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                    <Setter Property="Foreground" Value="#1565C0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                            <Setter Property="Background" Value="#E3F2FD" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                            <Setter Property="Padding" Value="8" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        </Style>
+                                        <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                            <Setter Property="Padding" Value="4,0"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <!-- Mã hóa đơn -->
+                                        <DataGridTemplateColumn Header="Mã hóa đơn" Width="140">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding InvoiceId}"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Ngày lập -->
+                                        <DataGridTemplateColumn Header="Ngày lập" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding InvoiceDate, StringFormat='dd/MM/yyyy'}"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Tổng tiền -->
+                                        <DataGridTemplateColumn Header="Tổng tiền" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N0} VNĐ'}" 
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Loại hóa đơn -->
+                                        <DataGridTemplateColumn Header="Loại hóa đơn" Width="180">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6" Padding="12,6" HorizontalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding InvoiceType, Converter={StaticResource StringTrimmingConverter}}" Value="Khám bệnh">
+                                                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                                                        <Setter Property="BorderBrush" Value="#2196F3"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding InvoiceType, Converter={StaticResource StringTrimmingConverter}}" Value="Bán thuốc">
+                                                                        <Setter Property="Background" Value="#E8F5E9"/>
+                                                                        <Setter Property="BorderBrush" Value="#43A047"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding InvoiceType, Converter={StaticResource StringTrimmingConverter}}" Value="Khám và bán thuốc">
+                                                                        <Setter Property="Background" Value="#F3E5F5"/>
+                                                                        <Setter Property="BorderBrush" Value="#9C27B0"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="12" TextAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding InvoiceType,Converter={StaticResource StringTrimmingConverter}}" Value="Khám bệnh">
+                                                                            <Setter Property="Text" Value="Khám bệnh"/>
+                                                                            <Setter Property="Foreground" Value="#1565C0"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding InvoiceType, Converter={StaticResource StringTrimmingConverter}}" Value="Bán thuốc">
+                                                                            <Setter Property="Text" Value="Bán thuốc"/>
+                                                                            <Setter Property="Foreground" Value="#2E7D32"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding InvoiceType, Converter={StaticResource StringTrimmingConverter}}" Value="Khám và bán thuốc">
+                                                                            <Setter Property="Text" Value="Khám và bán thuốc"/>
+                                                                            <Setter Property="Foreground" Value="#7B1FA2"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Trạng thái -->
+                                        <DataGridTemplateColumn Header="Trạng thái" Width="200">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6" Padding="12,6" HorizontalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Đã thanh toán">
+                                                                        <Setter Property="Background" Value="#E8F5E8"/>
+                                                                        <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Chưa thanh toán">
+                                                                        <Setter Property="Background" Value="#FFF3E0"/>
+                                                                        <Setter Property="BorderBrush" Value="#FF9800"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="12" TextAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Đã thanh toán">
+                                                                            <Setter Property="Text" Value="Đã thanh toán"/>
+                                                                            <Setter Property="Foreground" Value="#2E7D32"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Chưa thanh toán">
+                                                                            <Setter Property="Text" Value="Chưa thanh toán"/>
+                                                                            <Setter Property="Foreground" Value="#EF6C00"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Ghi chú -->
+                                        <DataGridTemplateColumn Header="Ghi chú" Width="200">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Notes}" 
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Hành động -->
+                                        <DataGridTemplateColumn>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Command="{Binding DataContext.ViewInvoiceCommand, 
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" 
+                                    CommandParameter="{Binding}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    Margin="0,0,8,0" Width="90" Height="32">
+                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                <materialDesign:PackIcon Kind="FileDocumentOutline" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="Xem"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+
+                                
+                                </DataGrid>
+                            </ScrollViewer>
+
+
+
+
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Appointments Tab -->
+                    <TabItem Header="Lịch hẹn">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Filter & Actions -->
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Status Filter -->
+                                <ComboBox Grid.Column="0" ItemsSource="{Binding AppointmentStatusList}"
+                                         SelectedItem="{Binding SelectedAppointmentStatus}"
+                                         DisplayMemberPath="DisplayName"
+                                         Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                         Width="180" Height="48" Margin="0,0,16,0"
+                                         VerticalAlignment="Center"
+                                         materialDesign:HintAssist.Hint="Trạng thái lịch hẹn"/>
+                            </Grid>
+
+                            <!-- Appointments List -->
+                            <!-- Appointments List -->
+                            <ScrollViewer Grid.Row="1" 
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto">
+                                <DataGrid ItemsSource="{Binding Appointments}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              CanUserReorderColumns="True"
+              CanUserResizeColumns="True"
+              CanUserSortColumns="True"
+              GridLinesVisibility="All"
+              RowHeaderWidth="0"
+              AlternatingRowBackground="#F5F5F5"
+             BorderThickness="1"
+   BorderBrush="{DynamicResource MaterialDesignDivider}"
+   VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+   HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                Background="White">
+
+                                    <!-- Resources for styling -->
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                            <Setter Property="Background" Value="#E3F2FD" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                            <Setter Property="Padding" Value="8" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        </Style>
+
+                                        <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                            <Setter Property="Padding" Value="4,0"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+
+                                    <DataGrid.Columns>
+                                        <!-- Replace DataGridTextColumn with DataGridTemplateColumn for Appointment Date -->
+                                        <DataGridTemplateColumn Header="Ngày hẹn" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding AppointmentDate, StringFormat='dd/MM/yyyy HH:mm'}" 
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Replace DataGridTextColumn with DataGridTemplateColumn for Doctor -->
+                                        <DataGridTemplateColumn Header="Bác sĩ" Width="160">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Staff.FullName}" 
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Replace DataGridTextColumn with DataGridTemplateColumn for Appointment Type -->
+                                        <DataGridTemplateColumn Header="Loại hẹn" Width="160">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding AppointmentType.TypeName}" 
+                                   Style="{StaticResource CenteredCellStyle}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Notes column (already a DataGridTemplateColumn) -->
+                                        <DataGridTemplateColumn Header="Ghi chú" Width="400">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Notes}" 
+                                   TextWrapping="Wrap" 
+                                   VerticalAlignment="Center"
+                                   Padding="8,4"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Status column (already a DataGridTemplateColumn) -->
+                                        <DataGridTemplateColumn Header="Trạng thái" Width="140">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6" Padding="10,5">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Đang chờ">
+                                                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                                                        <Setter Property="BorderBrush" Value="#2196F3"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Đang khám">
+                                                                        <Setter Property="Background" Value="#F3E5F5"/>
+                                                                        <Setter Property="BorderBrush" Value="#9C27B0"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Đã khám">
+                                                                        <Setter Property="Background" Value="#E8F5E8"/>
+                                                                        <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Đã hủy">
+                                                                        <Setter Property="Background" Value="#FFEBEE"/>
+                                                                        <Setter Property="BorderBrush" Value="#F44336"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="12">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Đang chờ">
+                                                                            <Setter Property="Text" Value="Đang chờ"/>
+                                                                            <Setter Property="Foreground" Value="#1565C0"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Đang khám">
+                                                                            <Setter Property="Text" Value="Đang khám"/>
+                                                                            <Setter Property="Foreground" Value="#7B1FA2"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Đã khám">
+                                                                            <Setter Property="Text" Value="Đã khám"/>
+                                                                            <Setter Property="Foreground" Value="#2E7D32"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Đã hủy">
+                                                                            <Setter Property="Text" Value="Đã hủy"/>
+                                                                            <Setter Property="Foreground" Value="#C62828"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- Actions column (already a DataGridTemplateColumn) -->
+                                        <DataGridTemplateColumn>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Command="{Binding DataContext.ViewAppointmentCommand, 
+                                                                        RelativeSource={RelativeSource FindAncestor, 
+                                                                        AncestorType={x:Type DataGrid}}}" 
+                                                                        CommandParameter="{Binding}"
+                                                                        Margin="0,0,8,0" Width="90" Height="32">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="CalendarEdit" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="Xem"/>
+                                                            </StackPanel>
+                                                            <Button.Style>
+                                                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Canceled">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        <Button Command="{Binding DataContext.CancelAppointmentCommand, 
+                                RelativeSource={RelativeSource FindAncestor, 
+                                AncestorType={x:Type DataGrid}}}" 
+                                CommandParameter="{Binding}"
+                                Width="90" Height="32">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="CalendarRemove" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="Hủy"/>
+                                                            </StackPanel>
+                                                            <Button.Style>
+                                                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Canceled">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </ScrollViewer>
+
+
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</Window>

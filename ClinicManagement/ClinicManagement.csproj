@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>ResourceXAML\Icons\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ResourceXAML\Icons\logo24.png" />
+    <None Remove="ResourceXAML\Icons\logo96.png" />
+    <None Remove="ResourceXAML\Images\banner.png" />
+    <None Remove="ResourceXAML\Images\logo24.png" />
+    <None Remove="ResourceXAML\Images\logo96.png" />
+    <None Remove="ResourceXAML\Images\paymentqr.jpg" />
+    <None Remove="ResourceXAML\Images\paymentqr.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ResourceXAML\Icons\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="QuestPDF" Version="2025.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WebClinic\ClinicManagement.Core\ClinicManagement.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="ResourceXAML\Icons\logo24.png" />
+    <Resource Include="ResourceXAML\Icons\logo96.png" />
+    <Resource Include="ResourceXAML\Images\banner.png" />
+    <Resource Include="ResourceXAML\Images\logo24.png" />
+    <Resource Include="ResourceXAML\Images\logo96.png" />
+    <Resource Include="ResourceXAML\Images\paymentqr.jpg" />
+    <Resource Include="ResourceXAML\Images\paymentqr.png" />
+  </ItemGroup>
+
+</Project>

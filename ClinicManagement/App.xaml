@@ -1,0 +1,37 @@
+﻿<Application x:Class="ClinicManagement.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:ClinicManagement"
+             xmlns:converter="clr-namespace:ClinicManagement.Converter"
+             xmlns:viewModels="clr-namespace:ClinicManagement.ViewModels"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Đăng ký ViewModelLocator -->
+            <viewModels:ViewModelLocator x:Key="ViewModelLocator"/>
+
+            <!-- Thay đổi cách tham chiếu các ViewModel -->
+            <Binding Path="GetViewModel[MainVM]" Source="{StaticResource ViewModelLocator}" x:Key="MainVM" />
+            <Binding Path="GetViewModel[PatientVM]" Source="{StaticResource ViewModelLocator}" x:Key="PatientVM" />
+            <Binding Path="GetViewModel[AppointmentVM]" Source="{StaticResource ViewModelLocator}" x:Key="AppointmentVM" />
+            <Binding Path="GetViewModel[StockMedicineVM]" Source="{StaticResource ViewModelLocator}" x:Key="StockMedicineVM" />
+            <Binding Path="GetViewModel[InvoiceVM]" Source="{StaticResource ViewModelLocator}" x:Key="InvoiceVM" />
+            <Binding Path="GetViewModel[MedicineSellVM]" Source="{StaticResource ViewModelLocator}" x:Key="MedicineSellVM" />
+            <Binding Path="GetViewModel[StatisticsVM]" Source="{StaticResource ViewModelLocator}" x:Key="StatisticsVM" />
+            <Binding Path="GetViewModel[StaffVM]" Source="{StaticResource ViewModelLocator}" x:Key="StaffVM" />
+            <Binding Path="GetViewModel[SettingVM]" Source="{StaticResource ViewModelLocator}" x:Key="SettingVM" />
+
+            <!-- App Icon -->
+            <BitmapImage x:Key="AppIcon" UriSource="/ResourceXAML/Icons/icon.ico"/>
+
+            <!-- Merged Dictionaries -->
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="LightBlue" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+                <ResourceDictionary Source="/ResourceXAML/MainResource.xaml"></ResourceDictionary>
+                <!-- Thêm app icon -->
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

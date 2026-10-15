@@ -1,0 +1,1699 @@
+﻿<UserControl x:Class="ClinicManagement.UserControlToUse.StockUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClinicManagement.UserControlToUse"
+             xmlns:conver="clr-namespace:ClinicManagement.Converter"
+             mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{DynamicResource MaterialDesignFont}"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             Name="StockUc">
+
+    <UserControl.Resources>
+        <conver:LowStockConverter x:Key="LowStockConverter"/>
+        <conver:NearExpiryConverter x:Key="NearExpiryConverter"/>
+        <conver:ExpiredConverter x:Key="ExpiredConverter"/>
+        <conver:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conver:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <conver:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <conver:MonthlyStockValueConverter x:Key="MonthlyStockValueConverter"/>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedUCCommand}" 
+                                  CommandParameter="{Binding ElementName=StockUc}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <materialDesign:Card Margin="10">
+        
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <materialDesign:PackIcon Kind="Dns" Width="24" Height="24" VerticalAlignment="Center"/>
+            <TextBlock Text="QUẢN LÍ KHO" FontSize="24" FontWeight="Bold" Margin="8,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TabControl
+        Grid.Row="1"
+        materialDesign:ColorZoneAssist.Mode="PrimaryLight"
+        Style="{StaticResource MaterialDesignFilledTabControl}">
+            <TabItem Header="Kho">
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="🔄 Làm mới" 
+                        Command="{Binding ResetStockFiltersCommand}"
+                        FontWeight="Bold"/>
+                        <MenuItem Header="📊 Xuất Excel" 
+                        Command="{Binding ExportExcelCommand}"
+                        FontWeight="Bold"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <materialDesign:Card>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="319*"/>
+                            <ColumnDefinition Width="91*"/>
+                            <ColumnDefinition Width="410*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <!-- Toggle chế độ xem -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <RadioButton
+                                    Margin=" 15 0 15 0"
+                                   Content="Tồn kho hiện tại"
+                                  IsChecked="{Binding IsMonthlyView, Converter={StaticResource InverseBooleanConverter}, Mode=TwoWay}"
+                                  Style="{StaticResource MaterialDesignLightRadioButton}"
+                                    />
+                                    <RadioButton
+                                  Content="Tồn kho theo tháng"
+                                          Margin=" 0 0 15 0"
+                                  IsChecked="{Binding IsMonthlyView, Mode=TwoWay}"
+                                  Style="{StaticResource MaterialDesignLightRadioButton}"
+                                         />
+                                </StackPanel>
+
+                                <!-- Bộ chọn cho Tồn kho theo tháng -->
+                                <StackPanel 
+                                Grid.Column="1"
+                                Orientation="Horizontal" 
+                                Visibility="{Binding IsMonthlyView, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <ComboBox 
+                                    Width="90"
+                                       Margin=" 0 0 15 0"
+                                    materialDesign:HintAssist.Hint="Tháng"
+                                    Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                    ItemsSource="{Binding MonthOptions}"
+                                    SelectedItem="{Binding SelectedMonth}"/>
+                                    <ComboBox 
+                                    Width="100"
+                                          Margin=" 0 0 15 0"
+                                    materialDesign:HintAssist.Hint="Năm"
+                                    Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                    ItemsSource="{Binding YearOptions}"
+                                    SelectedItem="{Binding SelectedYear}"/>
+                                </StackPanel>
+
+                                <!-- Combobox bộ lọc hiện tại -->
+                                <ComboBox
+                                Grid.Column="2"
+                                      Margin=" 0 0 15 0"
+                                ItemsSource="{Binding SupplierList}"
+                                DisplayMemberPath="SupplierName"
+                                SelectedItem="{Binding SelectedStockSupplier}"
+                                Width="180"
+                                materialDesign:HintAssist.Hint="Chọn nhà cung cấp"
+                                Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                                </ComboBox>
+
+                                <ComboBox
+                            Grid.Column="3"
+                            ItemsSource="{Binding CategoryList}"
+                            DisplayMemberPath="CategoryName"
+                            SelectedItem="{Binding SelectedStockCategoryName}"
+                            Width="110"
+                            materialDesign:HintAssist.Hint="Loại"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                                </ComboBox>
+                            </Grid>
+
+                            <TextBox
+                            Margin="20 0 0 0"
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            Text="{Binding SearchStockMedicine, UpdateSourceTrigger=PropertyChanged}"
+                            Height="42"
+                            Width="400"
+                            Padding="15 0 0 0 "
+                            materialDesign:HintAssist.Hint="Tên thuốc"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <Button
+                              HorizontalAlignment="Right"
+                             Style="{StaticResource MaterialDesignRaisedButton}" Margin="10 5 5 5 "
+                             Grid.Column="2"
+                             Width="120"
+                             Height="32"
+                             ToolTip="Resource name: MaterialDesignRaisedButton"
+                              Command="{Binding SearchStockMedicineCommand,  UpdateSourceTrigger=PropertyChanged}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Search" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Tìm kiếm"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Grid Grid.Column="3" Margin="15,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                              Grid.Column="0"
+                              Command="{Binding ResetStockFiltersCommand}"
+                              Style="{StaticResource MaterialDesignOutlinedButton}"
+                              Width="50"
+                              Height="32"
+                              HorizontalAlignment="Left"
+                              Margin="0,0,10,0"
+                              ToolTip="Đặt lại tất cả bộ lọc">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+
+                                <Button 
+                                Grid.Column="1"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Width="50"
+                                Height="32"
+                                Margin="0,5,30,5"
+                                HorizontalAlignment="Left"
+                                Command="{Binding ExportStockExcelCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon 
+                                    Kind="FileExcel" 
+                                    VerticalAlignment="Center"
+                                    />
+                                    </StackPanel>
+                                </Button>
+
+                                    
+                                    <!-- Add to StockUC.xaml in the "Kho" TabItem header section -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
+                                        <Button
+                                            Command="{Binding ManualGenerateMonthlyStockCommand}"
+                                            Style="{StaticResource MaterialDesignRaisedButton}"
+                                           Width="50"
+                                            Height="32"
+                                            Margin="0,0,10,0"
+                                            ToolTip="Tổng kết tồn kho tháng hiện tại"
+                                            Visibility="{Binding CanManageSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="CalendarCheck" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                           
+                                            </StackPanel>
+                                        </Button>
+                                        <Button
+                                                Command="{Binding UndoMonthlyStockCommand}"
+                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                              Width="50"
+                                        Height="32"
+                                                Margin="0,0,10,0"
+                                                ToolTip="Hủy bỏ tổng kết tồn kho gần nhất"
+                                                Visibility="{Binding CanManageSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Undo" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <materialDesign:Card
+                                      HorizontalAlignment="Left"
+                                      Grid.Column="3"
+                                      Margin="0,10,0,0"
+                                      Padding="8"
+                                      UniformCornerRadius="6">
+                                    <StackPanel Grid.Row="1">
+                                        <Grid Margin="0,5,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock 
+                                           Grid.Column="0"
+                                           Text="Tổng số lượng tồn: " 
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                                            <TextBlock
+                                           Grid.Column="1"
+                                           Text="{Binding TotalQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                           FontWeight="Medium"
+                                           Margin="5,0,0,0"
+                                           VerticalAlignment="Center"/>
+                                        </Grid>
+                                        
+
+                                        <Grid  HorizontalAlignment="Left" Margin="0,5,0,5"
+                                                >
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock 
+                                           Grid.Column="0"
+                                           Text="Tổng tiền nhập: " 
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                            <TextBlock
+                                           Grid.Column="1"
+                                           Text="{Binding TotalValue, StringFormat='{}{0} VNĐ', UpdateSourceTrigger=PropertyChanged}"
+                                           FontWeight="SemiBold"
+                                           Padding="5,2"
+                                           Margin="5,0,0,0"
+                                           VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </Grid>
+                        </Grid>
+                        
+                        <!-- ListView in ScrollViewer with proper sizing -->
+                            <materialDesign:Card Grid.Row="1" Margin="8" UniformCornerRadius="8" Grid.ColumnSpan="3" >
+                                <ScrollViewer Grid.Row="1" 
+                           VerticalScrollBarVisibility="Auto" 
+                           HorizontalScrollBarVisibility="Auto"
+                           Margin="0,10,0,0">
+                                    <Grid>
+                                        <!-- DataGrid cho tồn kho hiện tại -->
+                                        <DataGrid 
+                                Visibility="{Binding IsMonthlyView, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                ItemsSource="{Binding ListStockMedicine}" 
+                                AutoGenerateColumns="False"
+                                IsReadOnly="True"
+                                SelectionMode="Single"
+                                SelectionUnit="FullRow"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                     BorderThickness="1"
+      BorderBrush="{DynamicResource MaterialDesignDivider}"
+      Background="White"
+      VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+      HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+      CanUserSortColumns="True">
+                                            <DataGrid.Resources>
+                                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                    <Setter Property="Background" Value="#E3F2FD" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                    <Setter Property="Padding" Value="8" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                </Style>
+
+                                                <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGrid.Resources>
+                                            <DataGrid.RowStyle>
+                                                <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                                                    <Style.Triggers>
+                                                        <!-- Thứ tự ưu tiên: Thuốc đã có lô hết hạn chưa tiêu hủy > Lô đang bán sắp hết hạn > Lô cuối cùng sắp hết hạn > Lô sắp hết số lượng -->
+
+                                                        <!-- 1. Nếu thuốc đã hết hạn và chưa được tiêu hủy - Màu đỏ nhạt -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Medicine.HasExpiredStock}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.HasNonTerminatedExpiredStock}" Value="True"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#FFEBEE"/>
+                                                            <Setter Property="Foreground" Value="#D32F2F"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            <Setter Property="ToolTip" Value="Thuốc có lô đã hết hạn sử dụng và chưa được tiêu hủy, cần tiêu hủy"/>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- 2. Lô đang bán đã được chỉ định và sắp hết hạn - Màu cam nổi bật -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Medicine.SellingStockIn.IsSelling}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.SellingStockIn.IsNearExpiry}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.SellingStockIn.IsTerminated}" Value="False"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#FFE0B2"/>
+                                                            <Setter Property="Foreground" Value="#E65100"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            <Setter Property="ToolTip" Value="Lô thuốc đang bán sắp hết hạn, cần cân nhắc chuyển lô"/>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- 3. Nếu lô đang bán đã bị tiêu hủy - Màu đỏ nhạt (lỗi cấu hình) -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Medicine.SellingStockIn.IsSelling}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.SellingStockIn.IsTerminated}" Value="True"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#FCE4EC"/>
+                                                            <Setter Property="Foreground" Value="#AD1457"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            <Setter Property="ToolTip" Value="LỖI CẤU HÌNH: Lô thuốc đang bán đã được tiêu hủy, cần chỉ định lô bán mới"/>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- 4. Nếu là lô cuối cùng và sắp hết hạn - Màu vàng nhạt -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Medicine.IsLastestStockIn}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.HasNearExpiryStock}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.HasNonTerminatedStock}" Value="True"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#FFF9C4"/>
+                                                            <Setter Property="ToolTip" Value="Lô thuốc cuối cùng sắp hết hạn, cần nhập thêm"/>
+                                                            <Setter Property="Foreground" Value="#F57F17"/>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- 5. Nếu là lô cuối cùng và gần hết số lượng - Màu xanh dương nhạt -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Medicine.IsLastestStockIn}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.TotalPhysicalStockQuantity, Converter={StaticResource LowStockConverter}}" Value="True"/>
+                                                                <Condition Binding="{Binding Medicine.HasNonTerminatedStock}" Value="True"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Background" Value="#E3F2FD"/>
+                                                            <Setter Property="ToolTip" Value="Thuốc sắp hết số lượng, cần nhập thêm"/>
+                                                            <Setter Property="Foreground" Value="#1565C0"/>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </DataGrid.RowStyle>
+
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Tên thuốc" Width="180" 
+                                        Binding="{Binding Medicine.Name}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Loại" Width="150" 
+                                        Binding="{Binding Medicine.Category.CategoryName}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="ĐVĐ" Width="100" 
+                                        Binding="{Binding Medicine.Unit.UnitName}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Ngày nhập mới nhất" Width="180" 
+                                        Binding="{Binding Medicine.LatestImportDate, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Đơn giá hiện tại" Width="130" 
+                                        Binding="{Binding Medicine.CurrentSellPrice, StringFormat='{}{0:N0} VNĐ'}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Tồn kho tổng" Width="100" 
+                                        Binding="{Binding Quantity}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Sử dụng được" Width="100" 
+                                        Binding="{Binding UsableQuantity}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+
+                                                <DataGridTemplateColumn Width="280">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=DataContext.ShowMedicineDetailsCommand}"
+                                                        CommandParameter="{Binding Medicine}"
+                                                        Margin="0 0 10 0"
+                                                        Content="Xem chi tiết"
+                                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                                        Width="120" Height="30"
+                                                        ToolTip="Xem chi tiết lô thuốc">
+                                                                </Button>
+                                                                <Button Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=DataContext.DeleteMedicine}"
+                                                        CommandParameter="{Binding Medicine}"
+                                                        Content="Xóa thuốc hết hạn"
+                                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                                        Width="120" Height="30"
+                                                        ToolTip="Xóa thuốc hết hạn">
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+
+                                        <!-- DataGrid cho tồn kho theo tháng -->
+                                        <DataGrid 
+                                Visibility="{Binding IsMonthlyView, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                ItemsSource="{Binding MonthlyStockList}" 
+                                AutoGenerateColumns="False"
+                                IsReadOnly="True"
+                                                 BorderThickness="1"
+                              BorderBrush="{DynamicResource MaterialDesignDivider}"
+     
+                              VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                              HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                              CanUserSortColumns="True"
+                                SelectionMode="Single"
+                                SelectionUnit="FullRow"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                Background="White">
+                                            <DataGrid.Resources>
+                                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                    <Setter Property="Background" Value="#E3F2FD" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                    <Setter Property="Padding" Value="8" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                </Style>
+
+                                                <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGrid.Resources>
+
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Tên thuốc" Width="180" 
+                                        Binding="{Binding Medicine.Name}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Loại" Width="150" 
+                                        Binding="{Binding Medicine.Category.CategoryName}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="ĐVĐ" Width="100" 
+                                        Binding="{Binding Medicine.Unit.UnitName}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Tháng/Năm" Width="100" 
+                                        Binding="{Binding MonthYear}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Tồn kho tổng" Width="120" 
+                                        Binding="{Binding Quantity}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Sử dụng được" Width="120" 
+                                        Binding="{Binding CanUsed}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Ngày ghi nhận" Width="150" 
+                                        Binding="{Binding RecordedDate, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                                        ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </ScrollViewer>
+                            </materialDesign:Card>
+                        </Grid>
+                </materialDesign:Card>
+            </TabItem>
+
+            <TabItem Header="Nhập kho">
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="🔄 Làm mới" 
+                        Command="{Binding RestartCommand}"
+                        FontWeight="Bold"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <materialDesign:Card Margin="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock 
+                        Grid.Row="0" 
+                        Text="NHẬP THUỐC MỚI" 
+                        FontWeight="Bold" 
+                        FontSize="18" 
+                        Margin="20,15,0,15" 
+                        HorizontalAlignment="Left"/>
+
+                        <Grid Grid.Row="1" Margin="15,0,15,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Nhà cung cấp -->
+                            <ComboBox
+                            Grid.Column="0" Grid.Row="0"
+                            ItemsSource="{Binding SupplierListStockIn}"
+                            DisplayMemberPath="SupplierName"
+                            SelectedItem="{Binding StockinSelectedSupplier, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Chọn nhà cung cấp"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
+                            <!-- Đơn vị thuốc -->
+                            <ComboBox
+                            Grid.Column="0" Grid.Row="1"
+                            ItemsSource="{Binding UnitList}"
+                            DisplayMemberPath="UnitName"
+                            SelectedItem="{Binding StockinSelectedUnit, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Đơn vị thuốc"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
+                            <!-- Loại thuốc -->
+                            <ComboBox
+                            Grid.Column="0" Grid.Row="2"
+                            ItemsSource="{Binding CategoryList}"
+                            DisplayMemberPath="CategoryName"
+                            SelectedItem="{Binding StockinSelectedCategory,  ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Loại thuốc"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
+                            <!-- Tên thuốc -->
+                            <TextBox
+                            Grid.Column="1" Grid.Row="0"
+                            Text="{Binding StockinMedicineName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Tên thuốc"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <!-- Số lượng -->
+                            <materialDesign:NumericUpDown
+                            Grid.Column="1" Grid.Row="2"
+                            Value="{Binding StockinQuantity,  ValidatesOnDataErrors=True}"
+                            Minimum="0"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Số lượng"
+                            Style="{StaticResource MaterialDesignOutlinedNumericUpDown}">
+                            </materialDesign:NumericUpDown>
+
+                            <TextBox
+                            Grid.Column="2" Grid.Row="0"
+                            Text="{Binding StockinUnitPrice, StringFormat='{}{0:N0}', UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Giá nhập (VNĐ)"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <TextBox
+                            Grid.Column="2" Grid.Row="1"
+                            Text="{Binding StockProfitMargin, StringFormat='{}{0:N2}', UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Tỉ lệ lợi nhuận (%)"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <!-- Giá xuất -->
+                            <TextBox
+                            Grid.Column="2" Grid.Row="2"
+                            Text="{Binding StockinSellPrice, StringFormat='{}{0:N0}', UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Giá bán (VNĐ)"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <!-- BarCode -->
+                            <TextBox
+                            Grid.Column="3" Grid.Row="1"
+                            Text="{Binding StockinBarCode, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Mã vạch (BarCode)"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <!-- QRCode -->
+                            <TextBox
+                            Grid.Column="3" Grid.Row="2"
+                            Text="{Binding StockinQrCode, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Mã QR (QRCode)"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <!-- Hạn sử dụng -->
+                            <DatePicker
+                            Grid.Column="1" Grid.Row="1"
+                            SelectedDate="{Binding StockinExpiryDate, ValidatesOnDataErrors=True, StringFormat='{}{0:dd/MM/yyyy}'}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Hạn sử dụng"
+                            Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+
+                            <!--Ngày nhập-->
+                            <DatePicker
+                            Grid.Column="3" Grid.Row="0"
+                            SelectedDate="{Binding ImportDate, StringFormat='{}{0:dd/MM/yyyy}'}"
+                            Margin="5"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            materialDesign:HintAssist.Hint="Ngày nhập"
+                            Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+
+                            <StackPanel Margin="7 20 0 0" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.RowSpan="2" Grid.Column="4" Grid.Row="1">
+                                <Button
+                                Margin="0 0 0 15"
+                                Content="Thêm vào kho"
+                                Command="{Binding AddNewMedicineCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Width="180"
+                                Height="40">
+                                    <Button.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="2" Direction="270" Color="#DDDDDD"/>
+                                    </Button.Effect>
+                                </Button>
+
+                                <Button
+                                Content="Hủy"
+                                Command="{Binding RestartCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Width="180"
+                                Height="40">
+                                    <Button.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="2" Direction="270" Color="#DDDDDD"/>
+                                    </Button.Effect>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                            <materialDesign:Card Grid.Row="2" Margin="8" UniformCornerRadius="8">
+                                    <!-- DataGrid for Medicines in Stock In tab -->
+                                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <DataGrid ItemsSource="{Binding ListMedicine}" 
+                                      SelectedItem="{Binding SelectedMedicine, Mode=TwoWay}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      SelectionUnit="FullRow"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                           BorderThickness="1"
+                                      BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                      Background="White"
+                                      VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                      HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                      CanUserSortColumns="True">
+                                            <DataGrid.Resources>
+                                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                <Setter Property="Background" Value="#E3F2FD" />
+                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                <Setter Property="Padding" Value="8" />
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            </Style>
+
+                                            <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGrid.Resources>
+
+
+                                        <DataGrid.RowStyle>
+                                            <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                                                <Style.Triggers>
+                                                    <!-- Thứ tự ưu tiên: Thuốc đã có lô hết hạn chưa tiêu hủy > Lô đang bán sắp hết hạn > Lô cuối cùng sắp hết hạn > Lô sắp hết số lượng -->
+
+                                                    <!-- 1. Nếu thuốc đã hết hạn và chưa được tiêu hủy - Màu đỏ nhạt -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Medicine.HasExpiredStock}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.HasNonTerminatedExpiredStock}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#FFEBEE"/>
+                                                        <Setter Property="Foreground" Value="#D32F2F"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        <Setter Property="ToolTip" Value="Thuốc có lô đã hết hạn sử dụng và chưa được tiêu hủy, cần tiêu hủy"/>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- 2. Lô đang bán đã được chỉ định và sắp hết hạn - Màu cam nổi bật -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Medicine.SellingStockIn.IsSelling}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.SellingStockIn.IsNearExpiry}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.SellingStockIn.IsTerminated}" Value="False"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#FFE0B2"/>
+                                                        <Setter Property="Foreground" Value="#E65100"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        <Setter Property="ToolTip" Value="Lô thuốc đang bán sắp hết hạn, cần cân nhắc chuyển lô"/>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- 3. Nếu lô đang bán đã bị tiêu hủy - Màu đỏ nhạt (lỗi cấu hình) -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Medicine.SellingStockIn.IsSelling}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.SellingStockIn.IsTerminated}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#FCE4EC"/>
+                                                        <Setter Property="Foreground" Value="#AD1457"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        <Setter Property="ToolTip" Value="LỖI CẤU HÌNH: Lô thuốc đang bán đã được tiêu hủy, cần chỉ định lô bán mới"/>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- 4. Nếu là lô cuối cùng và sắp hết hạn - Màu vàng nhạt -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Medicine.IsLastestStockIn}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.HasNearExpiryStock}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.HasNonTerminatedStock}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#FFF9C4"/>
+                                                        <Setter Property="ToolTip" Value="Lô thuốc cuối cùng sắp hết hạn, cần nhập thêm"/>
+                                                        <Setter Property="Foreground" Value="#F57F17"/>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- 5. Nếu là lô cuối cùng và gần hết số lượng - Màu xanh dương nhạt -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Medicine.IsLastestStockIn}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.TotalPhysicalStockQuantity, Converter={StaticResource LowStockConverter}}" Value="True"/>
+                                                            <Condition Binding="{Binding Medicine.HasNonTerminatedStock}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                                        <Setter Property="ToolTip" Value="Thuốc sắp hết số lượng, cần nhập thêm"/>
+                                                        <Setter Property="Foreground" Value="#1565C0"/>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGrid.RowStyle>
+
+                                        <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Tên thuốc" Width="200" 
+                          Binding="{Binding Medicine.Name}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Loại" Width="130" 
+                          Binding="{Binding Medicine.Category.CategoryName}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="ĐVT" Width="130" 
+                          Binding="{Binding Medicine.Unit.UnitName}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Ngày nhập mới nhất" Width="160" 
+                          Binding="{Binding Medicine.LatestImportDate, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Hạn dùng" Width="160" 
+                          Binding="{Binding Medicine.LatestExpiryDate, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Giá nhập lô mới nhất" Width="160" 
+                          Binding="{Binding Medicine.LatestUnitPrice, StringFormat='{}{0:N0} VNĐ'}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Giá bán lô mới nhất" Width="160" 
+                          Binding="{Binding Medicine.LatestSellPrice, StringFormat='{}{0:N0} VNĐ'}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Tồn kho tổng" Width="100" 
+                          Binding="{Binding Quantity}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Sử dụng được" Width="100" 
+                          Binding="{Binding Medicine.TotalStockQuantity}" 
+                          ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                              
+                            </materialDesign:Card>
+                        </Grid>
+                </materialDesign:Card>
+            </TabItem>
+
+            <TabItem Header="Quản lí Đơn vị và Loại thuốc">
+                <TabControl materialDesign:ColorZoneAssist.Mode="PrimaryMid"
+                         Style="{StaticResource MaterialDesignFilledTabControl}">
+                    <TabItem Header="Đơn vị">
+                        <TabItem.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="🔄 Làm mới" 
+                                Command="{Binding RefreshUnitCommand}"
+                                FontWeight="Bold"/>
+                            </ContextMenu>
+                        </TabItem.ContextMenu>
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="350"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left Panel - Unit Management Form -->
+                            <materialDesign:Card 
+                            Grid.Column="0" 
+                            Margin="0,0,10,0" 
+                            Padding="16" 
+                            UniformCornerRadius="8">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Header -->
+                                    <TextBlock 
+                                    Grid.Row="0"
+                                    Text="THÔNG TIN ĐƠN VỊ"
+                                    FontSize="16"
+                                    FontWeight="Bold"
+                                    Margin="0,0,0,20"
+                                    HorizontalAlignment="Center"/>
+
+                                    <!-- Input Fields -->
+                                    <TextBox 
+                                    Grid.Row="1"
+                                    Text="{Binding UnitName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay,  ValidatesOnDataErrors=True}"
+                                    materialDesign:HintAssist.Hint="Tên đơn vị đo"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                    Margin="0,0,0,15"
+                                    Width="300"
+                                    HorizontalAlignment="Center"/>
+
+                                    <!-- Description Field -->
+                                    <TextBox 
+                                    Grid.Row="2"
+                                    Text="{Binding UnitDescription, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay,  ValidatesOnDataErrors=True}"
+                                    materialDesign:HintAssist.Hint="Mô tả chi tiết"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                    TextWrapping="Wrap"
+                                    AcceptsReturn="True"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Height="80"
+                                    Margin="0,0,0,20"
+                                    Width="300"
+                                    HorizontalAlignment="Center"/>
+
+                                    <!-- Action Buttons -->
+                                    <StackPanel 
+                                    Grid.Row="3" 
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,20">
+                                        <Button 
+                                        Command="{Binding AddUnitCommand}" 
+                                        IsEnabled="{Binding CanManageSettings}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Margin="5" 
+                                        Width="90"
+                                        Height="36">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Thêm"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button 
+                                        Command="{Binding EditUnitCommand}" 
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        IsEnabled="{Binding CanManageSettings}"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Background="#FF3F51B5"
+                                        BorderBrush="#FF3F51B5"
+                                        Margin="5" 
+                                        Width="90"
+                                        Height="36">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Pencil" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Sửa"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button 
+                                        Command="{Binding DeleteUnitCommand}" 
+                                        IsEnabled="{Binding CanManageSettings}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Background="#FFE91E63"
+                                        BorderBrush="#FFE91E63"
+                                        Margin="5" 
+                                        Width="90"
+                                        Height="36">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Delete" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Xóa"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <!-- Information Box -->
+                                    <materialDesign:Card 
+                                    Height="200"
+                                    VerticalAlignment="Top"
+                                    Grid.Row="4" 
+                                    Margin="0,10,0,0"
+                                    UniformCornerRadius="5"
+                                    Background="#FFF5F5F5">
+                                        <StackPanel Margin="16">
+                                            <TextBlock 
+                                            Text="Hướng dẫn sử dụng:"
+                                            FontWeight="Medium"
+                                            Margin="0,0,0,8"/>
+                                            <TextBlock 
+                                            Text="1. Chọn một đơn vị từ danh sách để sửa hoặc xóa." 
+                                            TextWrapping="Wrap"
+                                            Margin="0,4,0,4"/>
+                                            <TextBlock 
+                                            Text="2. Điền tên đơn vị và mô tả, nhấn 'Thêm' để tạo đơn vị mới." 
+                                            TextWrapping="Wrap"
+                                            Margin="0,4,0,4"/>
+                                            <TextBlock 
+                                            Text="3. Sửa thông tin đơn vị hiện tại và nhấn 'Sửa' để cập nhật." 
+                                            TextWrapping="Wrap"
+                                            Margin="0,4,0,4"/>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                </Grid>
+                            </materialDesign:Card>
+
+                            <!-- Right Panel - Units List -->
+                            <materialDesign:Card 
+                            Grid.Column="1" 
+                            Margin="10,0,0,0"
+                            UniformCornerRadius="8">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- List Header -->
+                                        <Grid 
+                                    Grid.Row="0" 
+                                    Background="{DynamicResource PrimaryHueMidBrush}" 
+                                    Height="50">
+                                            <TextBlock 
+                                        Text="DANH SÁCH ĐƠN VỊ ĐO" 
+                                        FontWeight="Medium" 
+                                        FontSize="16" 
+                                        Foreground="White" 
+                                        VerticalAlignment="Center" 
+                                        HorizontalAlignment="Center"/>
+                                        </Grid>
+                                        <!-- DataGrid for Units -->
+                                        <materialDesign:Card Grid.Row="1" Margin="8" UniformCornerRadius="8">
+                                            <ScrollViewer 
+                              
+                                        VerticalScrollBarVisibility="Auto"
+                                        Margin="0,5,0,0">
+                                                <DataGrid 
+                                            ItemsSource="{Binding UnitList}" 
+                                            SelectedItem="{Binding SelectedUnit, Mode=TwoWay}"
+                                            AutoGenerateColumns="False"
+                                            IsReadOnly="True"
+                                            SelectionMode="Single"
+                                            SelectionUnit="FullRow"
+                                            CanUserAddRows="False"
+                                            CanUserDeleteRows="False"
+                                                 BorderThickness="1"
+                                              BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                              Background="White"
+                                              VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                              HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                              CanUserSortColumns="True">
+                                                    <DataGrid.Resources>
+                                                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                            <Setter Property="Background" Value="#E3F2FD" />
+                                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                            <Setter Property="Padding" Value="8" />
+                                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                        </Style>
+
+                                                        <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                                            <Setter Property="Padding" Value="4,0"/>
+                                                        </Style>
+                                                    </DataGrid.Resources>
+
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="ID" 
+                                                    Binding="{Binding UnitId}" 
+                                                    Width="100"
+                                                    ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                        <DataGridTextColumn Header="Tên đơn vị đo" 
+                                                    Binding="{Binding UnitName}" 
+                                                    Width="180"
+                                                    ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                        <DataGridTextColumn Header="Mô tả" 
+                                                    Binding="{Binding Description}" 
+                                                    Width="*"
+                                                    ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </ScrollViewer>
+                                        </materialDesign:Card>
+                                    </Grid>
+                            </materialDesign:Card>
+                        </Grid>
+                    </TabItem>
+
+                    <TabItem Header="Loại thuốc">
+                        <!-- Context Menu Definition -->
+                        <TabItem.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="🔄 Làm mới" 
+                                Command="{Binding RefreshCatergoryCommand}"
+                                FontWeight="Bold"/>
+                            </ContextMenu>
+                        </TabItem.ContextMenu>
+                        <Grid>
+                            <materialDesign:Card Grid.Row="1">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="350"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Left Panel - Unit Management Form -->
+                                    <materialDesign:Card 
+                                    Grid.Column="0" 
+                                    Margin="0,0,10,0" 
+                                    Padding="16" 
+                                    UniformCornerRadius="8">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Header -->
+                                            <TextBlock 
+                                            Grid.Row="0"
+                                            Text="THÔNG TIN LOẠI THUỐC"
+                                            FontSize="16"
+                                            FontWeight="Bold"
+                                            Margin="0,0,0,20"
+                                            HorizontalAlignment="Center"/>
+
+                                            <!-- Input Fields -->
+                                            <TextBox 
+                                            Grid.Row="1"
+                                            Text="{Binding CategoryName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                                            materialDesign:HintAssist.Hint="Tên loại thuốc"
+                                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                            Margin="0,0,0,15"
+                                            Width="300"
+                                            HorizontalAlignment="Center"/>
+
+                                            <!-- Description Field -->
+                                            <TextBox 
+                                            Grid.Row="2"
+                                            Text="{Binding CategoryDescription, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay,  ValidatesOnDataErrors=True}"
+                                            materialDesign:HintAssist.Hint="Mô tả chi tiết"
+                                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                            TextWrapping="Wrap"
+                                            AcceptsReturn="True"
+                                            VerticalScrollBarVisibility="Auto"
+                                            Height="80"
+                                            Margin="0,0,0,20"
+                                            Width="300"
+                                            HorizontalAlignment="Center"/>
+
+                                            <!-- Action Buttons -->
+                                            <StackPanel 
+                                            Grid.Row="3" 
+                                            Orientation="Horizontal" 
+                                            HorizontalAlignment="Center"
+                                            Margin="0,0,0,20">
+                                                <Button 
+                                                Command="{Binding AddCategoryCommand}" 
+                                                IsEnabled="{Binding CanManageSettings}"
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                materialDesign:ButtonAssist.CornerRadius="5"
+                                                Margin="5" 
+                                                Width="90"
+                                                Height="36">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <TextBlock Text="Thêm"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button 
+                                                Command="{Binding EditCategoryCommand}" 
+                                                IsEnabled="{Binding CanManageSettings}"
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                materialDesign:ButtonAssist.CornerRadius="5"
+                                                Background="#FF3F51B5"
+                                                BorderBrush="#FF3F51B5"
+                                                Margin="5" 
+                                                Width="90"
+                                                Height="36">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="Pencil" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <TextBlock Text="Sửa"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button 
+                                                Command="{Binding DeleteCategoryCommand}" 
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                materialDesign:ButtonAssist.CornerRadius="5"
+                                                Background="#FFE91E63"
+                                                BorderBrush="#FFE91E63"
+                                                Margin="5" 
+                                                Width="90"
+                                                Height="36">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="Delete" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <TextBlock Text="Xóa"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+
+                                            <!-- Information Box -->
+                                            <materialDesign:Card 
+                                            Height="200"
+                                            VerticalAlignment="Top"
+                                            Grid.Row="4" 
+                                            Margin="0,10,0,0"
+                                            UniformCornerRadius="5"
+                                            Background="#FFF5F5F5">
+                                                <StackPanel Margin="16">
+                                                    <TextBlock 
+                                                    Text="Hướng dẫn sử dụng:"
+                                                    FontWeight="Medium"
+                                                    Margin="0,0,0,8"/>
+                                                    <TextBlock 
+                                                    Text="1. Chọn một loại thuốc từ danh sách để sửa hoặc xóa." 
+                                                    TextWrapping="Wrap"
+                                                    Margin="0,4,0,4"/>
+                                                    <TextBlock 
+                                                    Text="2. Điền tên loại thuốc và mô tả, nhấn 'Thêm' để tạo loại thuốc mới." 
+                                                    TextWrapping="Wrap"
+                                                    Margin="0,4,0,4"/>
+                                                    <TextBlock 
+                                                    Text="3. Sửa thông tin loại thuốc hiện tại và nhấn 'Sửa' để cập nhật." 
+                                                    TextWrapping="Wrap"
+                                                    Margin="0,4,0,4"/>
+                                                </StackPanel>
+                                            </materialDesign:Card>
+                                        </Grid>
+                                    </materialDesign:Card>
+
+                                    <!-- Right Panel - Units List -->
+                                    <materialDesign:Card 
+                                    Grid.Column="1" 
+                                    Margin="10,0,0,0"
+                                    UniformCornerRadius="8">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- List Header -->
+                                            <Grid 
+                                            Grid.Row="0" 
+                                            Background="{DynamicResource PrimaryHueMidBrush}" 
+                                            Height="50">
+                                                <TextBlock 
+                                                Text="DANH SÁCH LOẠI THUỐC" 
+                                                FontWeight="Medium" 
+                                                FontSize="16" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center"/>
+                                            </Grid>
+                                                <materialDesign:Card Grid.Row="1" Margin="8" UniformCornerRadius="8">
+                                               
+                                                    <ScrollViewer 
+                                            Grid.Row="1" 
+                                            VerticalScrollBarVisibility="Auto"
+                                            Margin="0,5,0,0">
+                                                        <!-- DataGrid for Categories -->
+                                                        <ScrollViewer 
+                                                Grid.Row="1" 
+                                                VerticalScrollBarVisibility="Auto"
+                                                Margin="0,5,0,0">
+                                                            <DataGrid 
+                                                    ItemsSource="{Binding CategoryList}" 
+                                                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                                    AutoGenerateColumns="False"
+                                                    IsReadOnly="True"
+                                                    SelectionMode="Single"
+                                                    SelectionUnit="FullRow"
+                                                    CanUserAddRows="False"
+                                                    CanUserDeleteRows="False"
+                                                         BorderThickness="1"
+                                                  BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                                  Background="White"
+                                                  VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                                  HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                                                  CanUserSortColumns="True">
+                                                                <DataGrid.Resources>
+                                                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                                        <Setter Property="Background" Value="#E3F2FD" />
+                                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                                        <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                                        <Setter Property="Padding" Value="8" />
+                                                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                    </Style>
+
+                                                                    <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                                                        <Setter Property="Padding" Value="4,0"/>
+                                                                    </Style>
+                                                                </DataGrid.Resources>
+
+                                                                <DataGrid.Columns>
+                                                                    <DataGridTextColumn Header="ID" 
+                                                            Binding="{Binding CategoryId}" 
+                                                            Width="100"
+                                                            ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                                    <DataGridTextColumn Header="Tên loại thuốc" 
+                                                            Binding="{Binding CategoryName}" 
+                                                            Width="180"
+                                                            ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                                    <DataGridTextColumn Header="Mô tả" 
+                                                            Binding="{Binding Description}" 
+                                                            Width="*"
+                                                            ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                                </DataGrid.Columns>
+                                                            </DataGrid>
+                                                        </ScrollViewer>
+                                                    </ScrollViewer>
+                                                </materialDesign:Card>
+                                            </Grid>
+                                    </materialDesign:Card>
+                                </Grid>
+                            </materialDesign:Card>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+
+            <TabItem Header="Nhà cung cấp">
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="🔄 Làm mới" 
+                        Command="{Binding RefreshSulpierCommand}"
+                        FontWeight="Bold"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <materialDesign:Card Margin="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="112*"/>
+                            <ColumnDefinition Width="451*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Supplier Management panel -->
+                        <materialDesign:Card Grid.Row="0" Margin="10,10,10,10" UniformCornerRadius="8" Grid.ColumnSpan="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Form Title -->
+                                <TextBlock 
+                                Grid.Row="0" 
+                                Text="THÔNG TIN NHÀ CUNG CẤP" 
+                                FontWeight="Bold" 
+                                FontSize="18" 
+                                Margin="15,15,0,15" 
+                                HorizontalAlignment="Left"/>
+
+                                <!-- Horizontal Input Controls - Grid layout -->
+                                <Grid Grid.Row="1" Margin="15,0,15,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Supplier Code -->
+                                    <TextBox
+                                    TabIndex="1"
+                                    Grid.Row="0" Grid.Column="0"
+                                    Text="{Binding SupplierCode, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnSourceUpdated=True}"
+                                    Margin="10"
+                                    materialDesign:HintAssist.Hint="Mã nhà cung cấp (VD: NCC001)"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <!-- Supplier Name -->
+                                    <TextBox
+                                    Grid.Row="0" Grid.Column="1"
+                                    TabIndex="2"
+                                    Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnSourceUpdated=True}"
+                                    Margin="10"
+                                    materialDesign:HintAssist.Hint="Tên nhà cung cấp"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <!-- Phone -->
+                                    <TextBox
+                                    Grid.Row="0" Grid.Column="2"
+                                    TabIndex ="3"           
+                            
+                             Text="{Binding SupplierPhone, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="10"
+                             materialDesign:HintAssist.Hint="Số điện thoại"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+
+                                    <!-- Email -->
+                                    <TextBox
+                             Grid.Row="1" Grid.Column="0"
+                               TabIndex="4"
+                             Text="{Binding SupplierEmail, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="10"
+                             materialDesign:HintAssist.Hint="Email"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <!-- Tax Code -->
+                                    <TextBox
+                             Grid.Row="1" Grid.Column="1"
+                               TabIndex="5"
+                             Text="{Binding SupplierTaxCode, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="10"
+                             materialDesign:HintAssist.Hint="Mã số thuế"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <!-- Row 2 -->
+                                    <!-- Address -->
+                                    <TextBox
+                             Grid.Row="2" Grid.Column="0"
+                               TabIndex="6"
+                             Text="{Binding SupplierAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="10"
+                             materialDesign:HintAssist.Hint="Địa chỉ"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <!-- Contact Person -->
+                                    <TextBox
+                             Grid.Row="2" Grid.Column="1"
+                               TabIndex="7"
+                             Text="{Binding ContactPerson, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="10"
+                             materialDesign:HintAssist.Hint="Người liên hệ"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <GroupBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Header="Trạng thái" 
+                           Margin="10" 
+                          
+                           Style="{StaticResource MaterialDesignCardGroupBox}">
+                                        <StackPanel Orientation="Vertical" Margin="5">
+                                            <!-- Active Radio Button -->
+                                            <RadioButton Content="Hoạt động" 
+                                  TabIndex="8"
+                                  IsChecked="{Binding IsActive}" 
+                                  Command="{Binding SetActiveStatusCommand}"
+                               
+                                  Margin="0,2,0,2"
+                                  Style="{StaticResource MaterialDesignRadioButton}">
+                                                <RadioButton.ContentTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="CheckCircle" 
+                                        Width="18" Height="18" 
+                                        Foreground="Green" 
+                                        VerticalAlignment="Center" 
+                                        Margin="0,0,5,0"/>
+                                                            <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </RadioButton.ContentTemplate>
+                                            </RadioButton>
+
+                                            <!-- Inactive Radio Button -->
+                                            <RadioButton Content="Ngừng hoạt động" 
+                                      IsChecked="{Binding IsNotActive}" 
+                                      Command="{Binding SetNoActiveStatusCommand}"
+                                       TabIndex="9"
+                                      Margin="0,2,0,2"
+                                      Style="{StaticResource MaterialDesignRadioButton}">
+                                                <RadioButton.ContentTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="Cancel" 
+                                        Width="18" Height="18" 
+                                        Foreground="Red" 
+                                        VerticalAlignment="Center" 
+                                        Margin="0,0,5,0"/>
+                                                            <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </RadioButton.ContentTemplate>
+                                            </RadioButton>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <!-- Action Buttons -->
+                                    <StackPanel VerticalAlignment="Center" Grid.Column="3" Grid.Row="0" Grid.RowSpan="3" Orientation="Vertical">
+                                        <Button 
+                                   Command="{Binding AddSupplierCommand}" 
+                                   Style="{StaticResource MaterialDesignRaisedButton}"
+                                   materialDesign:ButtonAssist.CornerRadius="5"
+                                   Margin="0,0,0,0" 
+                                   Height="36"
+                                   Width="110">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Thêm"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button 
+                               Command="{Binding  EditSupplierCommand}" 
+                               Style="{StaticResource MaterialDesignRaisedButton}"
+                               materialDesign:ButtonAssist.CornerRadius="5"
+                               Background="#FF3F51B5"
+                               BorderBrush="#FF3F51B5"
+                               Margin="0,5,0,0" 
+                               Height="36"
+                               Width="110">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Pencil" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Cập nhật"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button 
+                                   Command="{Binding DeleteSupplierCommand}" 
+                                   Style="{StaticResource MaterialDesignRaisedButton}"
+                                   materialDesign:ButtonAssist.CornerRadius="5"
+                                   Background="#FFE91E63"
+                                   BorderBrush="#FFE91E63"
+                                  Margin="0,5,0,0" 
+                                   Height="36"
+                                   Width="110">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Delete" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Xóa"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Action Buttons and Search + Filter in the same row -->
+                                <Grid Grid.Row="2" Margin="15,10,15,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+
+
+                                    <!-- Filter Options -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <RadioButton 
+                                 Content="Tất cả" 
+                                 IsChecked="{Binding ShowAllSuppliers}"
+                                 Margin="0,0,15,0"
+                                 GroupName="SupplierFilter"/>
+                                        <RadioButton 
+                                 Content="Đang hoạt động" 
+                                 IsChecked="{Binding ShowActiveSuppliers}"
+                                 Margin="0,0,15,0"
+                                 GroupName="SupplierFilter"/>
+                                        <RadioButton 
+                                 Content="Ngừng hoạt động" 
+                                 IsChecked="{Binding ShowInactiveSuppliers}"
+                                 GroupName="SupplierFilter"/>
+                                    </StackPanel>
+
+                                    <TextBox
+                             Margin="20 0 0 0"
+                             Grid.Column="2"
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Left"
+                             Text="{Binding SupplierSearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Height="42"
+                             Width="500"
+                             Padding="15 0 0 0 "
+                             materialDesign:HintAssist.Hint="Tên nhà cung cấp"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                                    <Button
+                              HorizontalAlignment="Right"
+                              Style="{StaticResource MaterialDesignRaisedButton}" Margin="10 5 5 5 "
+                              Grid.Column="2"
+                              Width="120"
+                              Height="32"
+                              ToolTip="Resource name: MaterialDesignRaisedButton"
+                               Command="{Binding SearchSupplierCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Search" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Tìm kiếm"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </materialDesign:Card>
+                        <materialDesign:Card Grid.Row="1" Margin="10,10,10,10" UniformCornerRadius="8" Grid.ColumnSpan="2">
+                            <Grid>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                    <!-- DataGrid for Suppliers -->
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <DataGrid Grid.Row="1" 
+                                   ItemsSource="{Binding SupplierList}"
+                                   SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+                                   AutoGenerateColumns="False"
+                                   IsReadOnly="True"
+                                   SelectionMode="Single"
+                                   SelectionUnit="FullRow"
+                                   CanUserAddRows="False"
+                                   CanUserDeleteRows="False"
+                                        BorderThickness="1"
+      BorderBrush="{DynamicResource MaterialDesignDivider}"
+      Background="White"
+      VerticalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+      HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+      CanUserSortColumns="True">
+                                            <DataGrid.Resources>
+                                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                                        <Setter Property="Background" Value="#E3F2FD" />
+                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}" />
+                                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                                        <Setter Property="Padding" Value="8" />
+                                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    </Style>
+
+                                                    <Style x:Key="CenteredCellStyle" TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="Padding" Value="4,0"/>
+                                                </Style>
+                                            </DataGrid.Resources>
+
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Mã NCC" 
+                                         Binding="{Binding SupplierCode}" 
+                                         Width="120" 
+                                         ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Nhà cung cấp" 
+                     Binding="{Binding SupplierName}" 
+                     Width="220"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Người liên hệ" 
+                     Binding="{Binding ContactPerson}" 
+                     Width="150"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="SĐT" 
+                     Binding="{Binding Phone}" 
+                     Width="150"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Email" 
+                     Binding="{Binding Email}" 
+                     Width="200"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Mã số thuế" 
+                     Binding="{Binding TaxCode}" 
+                     Width="150"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTextColumn Header="Địa chỉ" 
+                     Binding="{Binding Address}" 
+                     Width="500"
+                     ElementStyle="{StaticResource CenteredCellStyle}"/>
+                                                <DataGridTemplateColumn Header="Trạng thái" Width="120">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock HorizontalAlignment="Center">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                                <Setter Property="Text" Value="Hoạt động"/>
+                                                                                <Setter Property="Foreground" Value="#4CAF50"/>
+                                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                                                <Setter Property="Text" Value="Ngừng"/>
+                                                                                <Setter Property="Foreground" Value="#F44336"/>
+                                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+
+                                </ScrollViewer>
+                            </Grid>
+                        </materialDesign:Card>
+                    </Grid>
+                </materialDesign:Card>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+    </materialDesign:Card>
+
+</UserControl>

@@ -1,0 +1,21 @@
+# --- ENVIRONMENT AND SECRETS ---
+.env
+.env.*
+!.env.example
+
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.Local.json
+
+*.p12
+*.pem
+*.key
+secrets.json
+
+# --- LOCAL DATABASES ---
+*.sqlite
+*.sqlite3
+
+# --- FRONTEND BUILD ---
+dist/
+coverage/

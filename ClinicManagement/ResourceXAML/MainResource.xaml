@@ -1,0 +1,23 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:conver="clr-namespace:ClinicManagement.Converter"
+                    
+                    xmlns:viewmodel="clr-namespace:ClinicManagement.ViewModels">
+
+    <viewmodel:MainViewModel x:Key="MainVM"/>
+    <viewmodel:LoginViewModel x:Key="LoginVM"/>
+    <viewmodel:PatientViewModel x:Key="PatientVM"/>
+    <viewmodel:StaffViewModel x:Key="StaffVM"/>
+    <viewmodel:AppointmentViewModel x:Key="AppointmentVM"/>
+    <viewmodel:StockMedicineViewModel x:Key="StockMedicineVM"/>
+    <viewmodel:AddPatientViewModel x:Key="AddPatientVM"/>
+    <viewmodel:AddDoctorWindowViewModel x:Key="AddStaffVM"/>
+    <viewmodel:InvoiceViewModel x:Key="InvoiceVM"/>
+    <viewmodel:MedicineSellViewModel x:Key="MedicineSellVM"/>
+    <viewmodel:StatisticsViewModel x:Key="StatisticsVM"/>
+
+    <conver:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
+    <conver:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    <viewmodel:SettingViewModel x:Key="SettingVM" />    
+
+</ResourceDictionary> 

@@ -1,0 +1,259 @@
+﻿<Window x:Class="ClinicManagement.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClinicManagement"
+        xmlns:sub="clr-namespace:ClinicManagement.SubWindow"
+        xmlns:conver="clr-namespace:ClinicManagement.Converter"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        DataContext="{StaticResource MainVM}"
+        WindowStyle="None"
+    
+        Name="mainWindow"
+        Style="{StaticResource MaterialDesignWindow}"
+        Height="1000" Width="1400" 
+        WindowState="Maximized"
+        xmlns:uc="clr-namespace:ClinicManagement.UserControlToUse"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <conver:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedWindowCommand}" CommandParameter="{Binding ElementName=mainWindow}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+            <uc:ControlBarUC Tag="{Binding Title, ElementName=mainWindow}"></uc:ControlBarUC>
+        </Grid>
+
+        <materialDesign:Card Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="28*" ></RowDefinition>
+                    <RowDefinition Height="407*"/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Nút chức năng -->
+                </Grid>
+                <!--#region Tab control-->
+
+                <TabControl Grid.Row="1"
+                            Margin="0 10 0 0 "
+                         TabStripPlacement="Left"
+                             SelectionChanged="MainTabControl_SelectionChanged"
+                           x:Name="MainTabControl" Grid.RowSpan="2">
+                    
+                    <TabItem Width="130" Height="70" x:Name="StatisticsTab"
+                             Visibility="{Binding CanViewStatistics, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Thống kê" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="MonitorDashboard" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:StatisticUC DataContext="{StaticResource StatisticsVM}"></uc:StatisticUC>
+                    </TabItem>
+
+                    <TabItem x:Name="PatientTab"
+                        Width="130" Height="70" Padding="0"
+                             Visibility="{Binding CanViewPatient, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Bệnh nhân" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="AccountMultiple" />
+                                </Grid>
+                            </Grid>
+                        </TabItem.Header>
+
+                        <uc:PantientUC DataContext="{StaticResource PatientVM}"/>
+
+                    </TabItem>
+
+
+                    <TabItem Width="130" Height="70" x:Name="ExamineTab"
+                             Visibility="{Binding CanViewExamine, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Khám bệnh" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1" Height="24" VerticalAlignment="Bottom">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="MedicalCottonSwab" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:ExamineUC ></uc:ExamineUC>
+                    </TabItem>
+ 
+                   <TabItem x:Name="AppointmentTab" Width="130" Height="70"  Padding="0"
+                             Visibility="{Binding CanViewAppointment, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <TabItem.Header>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Lịch hẹn" HorizontalAlignment="Center"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="Calendar" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:AppointmentUC DataContext="{StaticResource AppointmentVM}"></uc:AppointmentUC>
+                    </TabItem>
+                    
+                    <TabItem Width="130" Height="70" Padding="0" x:Name="StockTab"
+                             Visibility="{Binding CanViewInventory, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Kho" HorizontalAlignment="Center" Height="17" VerticalAlignment="Top"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="Dns" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:StockUC DataContext="{StaticResource StockMedicineVM}"/>
+                    </TabItem>
+
+                    <TabItem Width="130" Height="70"  Padding="0" x:Name="InvoiceTab"
+                             Visibility="{Binding CanViewInvoice, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Hóa đơn" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="InvoiceList" VerticalAlignment="Center" />
+                                </Grid>
+                            </Grid>
+                        </TabItem.Header>
+                        <uc:InvoiceUC DataContext="{StaticResource InvoiceVM}" ></uc:InvoiceUC>
+                    </TabItem>
+
+                    <TabItem Width="130" Height="70" Padding="0" x:Name="MedicineSellTab"
+                             Visibility="{Binding CanViewMedicineSell, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Bán thuốc" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Right" Width="24" Height="24"  Kind="Pill" Margin="0,0,19,0" VerticalAlignment="Center" />
+                                </Grid>
+                            </Grid>
+                        </TabItem.Header>
+                        <uc:MedicincSellUC DataContext="{StaticResource MedicineSellVM}" Margin="0,17,0,-17"></uc:MedicincSellUC>
+                    </TabItem>
+
+                    <TabItem Width="130" Height="70" Padding="0" x:Name="DoctorTab"
+                             Visibility="{Binding CanViewDoctor, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Nhân viên " HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="Doctor" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:StaffUC DataContext="{StaticResource StaffVM}"></uc:StaffUC>
+                    </TabItem>
+
+                    <TabItem Width="130" Height="70" x:Name="SettingsTab"
+                             Visibility="{Binding CanViewSettings, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabItem.Header >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                    <RowDefinition Height="auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Text="Cài đặt" HorizontalAlignment="Center"></TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="1" Height="24" VerticalAlignment="Bottom">
+                                    <materialDesign:PackIcon HorizontalAlignment="Center" Width="24" Height="24"  Kind="CogOutline" />
+                                </Grid>
+                            </Grid>
+
+                        </TabItem.Header>
+                        <uc:SettingUC DataContext="{StaticResource SettingVM}"></uc:SettingUC>
+                    </TabItem>
+
+                </TabControl>
+         
+                <!--#endregion-->
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</Window>

@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="ClinicManagement.UserControlToUse.ControlBarUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClinicManagement.UserControlToUse"
+             mc:Ignorable="d" 
+             Name="ucControlBar"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+            >
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseLeftButtonDown">
+            <i:InvokeCommandAction Command="{Binding MouseDragMoveCommand}" CommandParameter="{Binding ElementName=ucControlBar}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <materialDesign:ColorZone
+             Mode="PrimaryMid">
+            <DockPanel>
+
+                <StackPanel DockPanel.Dock="Right" Background="Transparent" Orientation="Horizontal">
+
+                    <Button
+                        Style="{DynamicResource MaterialDesignTextButton}"
+                        Content="{materialDesign:PackIcon Kind=Minimize}"
+                        Height="30"
+                        Width="50"
+                        Background="Transparent"
+                        BorderThickness="0"
+                      
+                        Command="{Binding MinimizingWindowCommand}"
+                        CommandParameter="{Binding ElementName=ucControlBar}"
+                    ToolTip="Minimize" />
+                    <Button
+                      Style="{DynamicResource MaterialDesignTextButton}"
+                      Height="30"
+                      Width="50"
+                      Background="Transparent"
+                      BorderThickness="0"
+                   
+                      Content="{materialDesign:PackIcon Kind=Maximize}"
+                      Command="{Binding MaximizingWindowCommand}"
+                      CommandParameter="{Binding ElementName=ucControlBar}"
+                      ToolTip="Maximize" />
+                    <Button
+                         Style="{DynamicResource MaterialDesignTextButton}"
+                     Height="30"
+                       Width="50"
+                       Background="Transparent"
+                       BorderThickness="0"
+                    
+                     Content="{materialDesign:PackIcon Kind=Close}"
+                        Command="{Binding ClosingWindowCommand}"
+                        CommandParameter="{Binding ElementName=ucControlBar}"
+                     ToolTip="Close" />
+
+                </StackPanel>
+                <!-- Logo + Tên -->
+                <StackPanel Margin="5" Orientation="Horizontal" VerticalAlignment="Center">
+                  <Image Source="/ResourceXAML/Icons/logo96.png"
+                           Width="20" Height="20" 
+                           Margin="10,0,5,0" 
+                           VerticalAlignment="Center"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="MediClinic | " FontWeight="Bold" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Text="Hệ thống quản lý phòng khám" FontSize="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </StackPanel>
+
+
+            </DockPanel>
+        </materialDesign:ColorZone>
+    </Grid>
+</UserControl>
